@@ -25,12 +25,34 @@ def bisection_method(func, x_lower, x_upper, e_tolerance, max_iter, log_iter = F
         x_old = xr
         if err and err < e_tolerance: return xr
 
-
     log_warning(f'Maximum number of iterations have reached : MAX_ITER = {max_iter}')
     return xr
 
-        
+def false_position_method(func, x_lower, x_upper, e_tolerance, max_iter, log_iter = False):
+    f_lower, f_upper = func(x_lower), func(x_upper)
+    x_old, xr, err = 0.0, 0.0, None 
+    for i in range(1,max_iter):
+        xr = x_upper - f_upper * (x_lower - x_upper) / (f_lower - f_upper)
+        f_xr = func(xr)
+        if xr != 0:
+            err = abs((xr - x_old) / xr) * 100
+        sign_test = f_lower * f_xr
 
+        if sign_test < 0:
+            x_upper = xr
+            f_upper = f_xr
+        elif sign_test > 0:
+            x_lower = xr
+            f_lower = f_xr
+        else: err = 0
+
+        if log_iter: log_iteration('False Position', i, xr, f_xr, err)
+        x_old = xr
+        if err and err < e_tolerance: return xr
+    
+    log_warning(f'Maximum number of iterations have reached : MAX_ITER = {max_iter}')
+    return xr
+    
 '''
 Input and Error Handling
 '''
@@ -83,4 +105,4 @@ def log_error(code : int, msg = 'Unknown Error'):
 if __name__ == '__main__':
     param = read_input('sample_input.txt')
     bisection_method(function, param.x_lower, param.x_upper, param.e_tolerance, param.max_iter, True)
-
+    false_position_method(function, param.x_lower, param.x_upper, param.e_tolerance, param.max_iter, True)
