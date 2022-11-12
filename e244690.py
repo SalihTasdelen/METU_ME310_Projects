@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from collections import namedtuple
 from f import function
-
+from fp import function_p
 '''
 Root Finding Methods
 '''
@@ -53,6 +53,23 @@ def false_position_method(func, x_lower, x_upper, e_tolerance, max_iter, log_ite
     log_warning(f'Maximum number of iterations have reached : MAX_ITER = {max_iter}')
     return xr
     
+
+def newton_method(func, func_p, x0, e_tolerance, max_iter, log_iter = False):
+    x_old, err = x0, None
+    for i in range(1, max_iter):
+        xr =  x_old - func(x_old) / func_p(x_old)
+        f_xr = func(xr)
+        if xr != 0:
+            err = abs((xr - x_old) / xr) * 100
+        
+        if log_iter: log_iteration('Newton', i, xr, f_xr, err)
+        x_old = xr
+        if err and err < e_tolerance: return xr
+    
+    log_warning(f'Maximum number of iterations have reached : MAX_ITER = {max_iter}')
+    return xr
+
+
 '''
 Input and Error Handling
 '''
@@ -106,3 +123,4 @@ if __name__ == '__main__':
     param = read_input('sample_input.txt')
     bisection_method(function, param.x_lower, param.x_upper, param.e_tolerance, param.max_iter, True)
     false_position_method(function, param.x_lower, param.x_upper, param.e_tolerance, param.max_iter, True)
+    newton_method(function, function_p, (param.x_lower + param.x_upper) / 2, param.e_tolerance, param.max_iter, True)
