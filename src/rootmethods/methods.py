@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 from collections import namedtuple
 from math import copysign, sqrt
-from .f import function
-from .fp import function_p
+
 '''
 Root Finding Methods
 '''
@@ -166,14 +165,3 @@ def log_error(code : int, msg = 'Unknown Error'):
     print(f'Exiting...\nExit Code {code}')
     exit() 
 
-'''
-Demo Function
-'''
-    
-def demo():
-    param = read_input('sample_input.txt')
-    bisection_method(function, param.x_lower, param.x_upper, param.e_tolerance, param.max_iter, True)
-    false_position_method(function, param.x_lower, param.x_upper, param.e_tolerance, param.max_iter, True)
-    newton_method(function, function_p, (param.x_lower + param.x_upper) / 2, param.e_tolerance, param.max_iter, True)
-    secant_method(function, param.x_lower, param.x_upper, param.e_tolerance, param.max_iter, True)
-    polynomial_method(function, param.x_lower, param.x_upper, param.e_tolerance, param.max_iter, True)
