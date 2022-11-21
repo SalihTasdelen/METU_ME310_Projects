@@ -3,17 +3,32 @@ from collections import namedtuple
 from math import copysign, sqrt
 
 '''
+Error Computation
+'''
+
+def compute_error(f, xr, x_old, rel_err):
+    err = None
+    if rel_err:
+        if xr != 0:
+            err = abs((xr - x_old) / xr) * 100.0
+            if err > 100 and xr*x_old > 0:
+                err = abs(f(xr))
+                rel_err = False
+    else:
+            err = abs(f(xr))
+    return err, rel_err
+
+'''
 Root Finding Methods
 '''
 
 def bisection_method(func, x_lower, x_upper, e_tolerance, max_iter, log_iter = False):
     f_lower = func(x_lower)
-    x_old, xr, err = 0.0, 0.0, None
+    x_old, xr, err, rel_err = 0.0, 0.0, None, True
     for i in range(1,max_iter):
         xr = (x_lower + x_upper) / 2.0
         f_xr = func(xr)
-        if xr != 0:
-            err = abs((xr - x_old) / xr) * 100.0
+        err, rel_err = compute_error(func, xr, x_old, rel_err)
         sign_test = f_lower * f_xr
         if sign_test < 0: x_upper = xr
         elif sign_test > 0:
@@ -30,12 +45,11 @@ def bisection_method(func, x_lower, x_upper, e_tolerance, max_iter, log_iter = F
 
 def false_position_method(func, x_lower, x_upper, e_tolerance, max_iter, log_iter = False):
     f_lower, f_upper = func(x_lower), func(x_upper)
-    x_old, xr, err = 0.0, 0.0, None 
+    x_old, xr, err, rel_err = 0.0, 0.0, None, True 
     for i in range(1,max_iter):
         xr = x_upper - f_upper * (x_lower - x_upper) / (f_lower - f_upper)
         f_xr = func(xr)
-        if xr != 0:
-            err = abs((xr - x_old) / xr) * 100
+        err, rel_err = compute_error(func, xr, x_old, rel_err)
         sign_test = f_lower * f_xr
 
         if sign_test < 0:
@@ -55,12 +69,11 @@ def false_position_method(func, x_lower, x_upper, e_tolerance, max_iter, log_ite
     
 
 def newton_method(func, func_p, x0, e_tolerance, max_iter, log_iter = False):
-    x_old, err = x0, None
+    x_old, err, rel_err = x0, None, True
     for i in range(1, max_iter):
         xr =  x_old - func(x_old) / func_p(x_old)
         f_xr = func(xr)
-        if xr != 0:
-            err = abs((xr - x_old) / xr) * 100
+        err, rel_err = compute_error(func, xr, x_old, rel_err)
         
         if log_iter: log_iteration('Newton', i, xr, f_xr, err)
         x_old = xr
@@ -70,12 +83,11 @@ def newton_method(func, func_p, x0, e_tolerance, max_iter, log_iter = False):
     return xr
 
 def secant_method(func, x0, x1, e_tolerance, max_iter, log_iter = False):
-    x_old_0, x_old_1, err = x0, x1, None
+    x_old_0, x_old_1, err, rel_err = x0, x1, None, True
     for i in range(1,max_iter):
         xr = x_old_1 - func(x_old_1) * (x_old_0 - x_old_1) / (func(x_old_0) - func(x_old_1))
         f_xr = func(xr)
-        if xr != 0:
-            err = abs((xr - x_old_1) / xr) * 100
+        err, rel_err = compute_error(func, xr, x_old_1, rel_err)
         
         if log_iter: log_iteration('Secant', i, xr, f_xr, err)
         x_old_0 = x_old_1
@@ -87,7 +99,7 @@ def secant_method(func, x0, x1, e_tolerance, max_iter, log_iter = False):
 
 def polynomial_method(func, x_lower, x_upper, e_tolerance, max_iter, log_iter = True):
     f_lower, f_upper = func(x_lower), func(x_upper)
-    x_old, xr, xi, err = 0.0, 0.0, 0, None
+    x_old, xr, xi, err, rel_err = 0.0, 0.0, 0, None, True
     for i in range(1,max_iter):
         xi = (x_lower + x_upper) / 2.0
         f_i = func(xi)
@@ -98,8 +110,7 @@ def polynomial_method(func, x_lower, x_upper, e_tolerance, max_iter, log_iter = 
         c = f_i
         xr = xi - 2*c / (b + copysign(sqrt(b**2 - 4*a*c),b))
         f_xr = func(xr)
-        if xr != 0:
-            err = abs((xr - x_old) / xr) * 100.0
+        err, rel_err = compute_error(func, xr, x_old, rel_err)
         sign_test = f_lower * f_xr
         if sign_test < 0: 
             x_upper = xr
